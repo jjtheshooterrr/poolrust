@@ -9,7 +9,7 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 image = "0.25"
-opencv = "0.92"
+imageproc = "0.25"
 palette = "0.7"
 anyhow = "1.0"
 mime = "0.3"
