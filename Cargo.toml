@@ -1,0 +1,15 @@
+[package]
+name = "strip_analyzer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = "0.25"
+opencv = "0.92"
+palette = "0.7"
+anyhow = "1.0"
+mime = "0.3"
