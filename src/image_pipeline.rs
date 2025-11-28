@@ -1,6 +1,5 @@
-use anyhow::{Result, anyhow};
-use image::{DynamicImage, GenericImageView, Pixel};
-use image::io::Reader as ImageReader;
+use anyhow::Result;
+use image::{DynamicImage, GenericImageView, Pixel, ImageReader};
 use std::io::Cursor;
 use crate::types::PadRegion;
 

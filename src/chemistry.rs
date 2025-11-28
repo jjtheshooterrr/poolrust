@@ -1,6 +1,13 @@
 use palette::{Lab, Srgb, IntoColor};
-use palette::color_difference::cie76;
 use std::collections::HashMap;
+
+// Simple implementation of CIE76 (Euclidean distance in Lab)
+fn cie76(c1: Lab, c2: Lab) -> f32 {
+    let dl = c1.l - c2.l;
+    let da = c1.a - c2.a;
+    let db = c1.b - c2.b;
+    (dl * dl + da * da + db * db).sqrt()
+}
 
 pub struct ReferenceColor {
     pub value: f32,
