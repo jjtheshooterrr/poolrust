@@ -1,14 +1,11 @@
 use anyhow::{Result, anyhow};
 use image::{DynamicImage, GenericImageView, Pixel};
 use image::io::Reader as ImageReader;
-use opencv::{
-    core::{Mat, Point2f, Size, Vector, BorderTypes},
-    imgproc,
-    prelude::*,
-    types::VectorOfPoint,
-};
 use std::io::Cursor;
 use crate::types::PadRegion;
+
+// Note: imageproc imports would go here if we were doing advanced processing.
+// For now, we are using basic image crate functionality and placeholders.
 
 pub fn load_image_from_bytes(bytes: &[u8]) -> Result<DynamicImage> {
     let img = ImageReader::new(Cursor::new(bytes))
@@ -17,73 +14,18 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<DynamicImage> {
     Ok(img)
 }
 
-// Convert image::DynamicImage to opencv::Mat
-// Note: This is a simplified conversion. In a real app, you'd handle formats more robustly.
-fn dynamic_image_to_mat(img: &DynamicImage) -> Result<Mat> {
-    let rgb = img.to_rgb8();
-    let (w, h) = rgb.dimensions();
-    let mat = Mat::from_slice(rgb.as_raw())?;
-    let mat = mat.reshape(3, h as i32)?;
-    // OpenCV uses BGR by default, so convert RGB to BGR
-    let mut bgr = Mat::default();
-    imgproc::cvt_color(&mat, &mut bgr, imgproc::COLOR_RGB2BGR, 0)?;
-    Ok(bgr)
-}
-
-fn mat_to_dynamic_image(mat: &Mat) -> Result<DynamicImage> {
-    let mut rgb = Mat::default();
-    imgproc::cvt_color(mat, &mut rgb, imgproc::COLOR_BGR2RGB, 0)?;
-    let size = rgb.size()?;
-    let data = rgb.data_bytes()?;
-    let img_buf = image::RgbImage::from_raw(size.width as u32, size.height as u32, data.to_vec())
-        .ok_or_else(|| anyhow!("Failed to create image buffer"))?;
-    Ok(DynamicImage::ImageRgb8(img_buf))
-}
-
 pub fn find_strip_and_warp(img: &DynamicImage) -> Result<DynamicImage> {
-    let mat = dynamic_image_to_mat(img)?;
+    // TODO: Implement strip detection using imageproc
+    // For now, we assume the user has cropped the image or the strip is the main subject.
+    // We return the image as-is.
     
-    // 1. Grayscale
-    let mut gray = Mat::default();
-    imgproc::cvt_color(&mat, &mut gray, imgproc::COLOR_BGR2GRAY, 0)?;
-
-    // 2. Blur
-    let mut blurred = Mat::default();
-    imgproc::gaussian_blur(&gray, &mut blurred, Size::new(5, 5), 0.0, 0.0, BorderTypes::BORDER_DEFAULT as i32)?;
-
-    // 3. Canny Edge Detection
-    let mut edges = Mat::default();
-    imgproc::canny(&blurred, &mut edges, 50.0, 150.0, 3, false)?;
-
-    // 4. Find Contours
-    let mut contours = VectorOfPoint::new();
-    imgproc::find_contours(&edges, &mut contours, imgproc::RETR_EXTERNAL, imgproc::CHAIN_APPROX_SIMPLE, opencv::core::Point::default())?;
-
-    // 5. Find largest contour (assuming it's the strip)
-    let mut max_area = 0.0;
-    let mut best_contour_idx = -1;
-    for i in 0..contours.len() {
-        let contour = contours.get(i)?;
-        let area = imgproc::contour_area(&contour, false)?;
-        if area > max_area {
-            max_area = area;
-            best_contour_idx = i as i32;
-        }
-    }
-
-    if best_contour_idx == -1 {
-        return Err(anyhow!("No contour found"));
-    }
-
-    // 6. Perspective Transform (Simplified: Just returning the original image for now)
-    // In a full implementation, you would:
-    // - ApproxPolyDP to get 4 corners
-    // - Sort corners
-    // - GetPerspectiveTransform
-    // - WarpPerspective
+    // In a real implementation with imageproc, you might:
+    // 1. Convert to grayscale: image::imageops::grayscale(img)
+    // 2. Blur: imageproc::filter::gaussian_blur_f32
+    // 3. Canny: imageproc::edges::canny
+    // 4. Find contours: imageproc::contours::find_contours
+    // 5. Calculate perspective transform (manual implementation required as imageproc doesn't have getPerspectiveTransform equivalent yet)
     
-    // For this prototype, we'll assume the user takes a decent photo and we just return the original
-    // or a slightly cropped version. To make it compile and run without complex geometry logic:
     Ok(img.clone())
 }
 
